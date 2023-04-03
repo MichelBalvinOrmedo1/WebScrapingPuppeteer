@@ -1,5 +1,5 @@
 const puppeteer = require('puppeteer');
-const websites = require('./websites.json');
+
 
 (async () => {
   const browser = await puppeteer.launch({ headless: false });
@@ -16,29 +16,28 @@ const websites = require('./websites.json');
 
  
 
-  const matrix = await page.evaluate(()=>{
+  const jsonData = await page.evaluate(()=>{
     const trendsList = document.querySelectorAll('.GsBXsKvH > .u4c2Cda9 div h3 a');
+    const jsonData = [];
+
+    for (let i = 0; i < trendsList.length; i++) {
+      const title = trendsList[i].innerHTML;
+      const dive = 'https://elements.envato.com' + trendsList[i].getAttribute('href');
     
     
-    const trendsText = [];
-    for (const trend of trendsList) {
-      trendsText.push(trend.innerHTML);
+      const data = {
+        "title": [title, dive],
+        "contenedores": [["title", "creator", "linkDescarga"],["title", "creator", "linkDescarga"]]
+      };
+    
+      jsonData.push(data);
     }
     
-    const dives = [];
-    for (const dive of trendsList) {
-      dives.push('https://elements.envato.com'+dive.getAttribute('href'));
-    }
+    return jsonData;
     
-    const matrix = [];
-    for (let i = 0; i < trendsText.length; i++) {
-      matrix.push([trendsText[i], dives[i]]);
-    }
-    
-    return matrix;
     
   })
-  console.log(matrix);
+  console.log(jsonData);
   
 
   //await browser.close();
