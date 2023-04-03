@@ -14,9 +14,32 @@ const websites = require('./websites.json');
   // Esperar a que la página termine de cargar
   await page.waitForSelector('.GsBXsKvH .u4c2Cda9');
 
-  const producto = await page.$$('.GsBXsKvH .u4c2Cda9');
+ 
+
+  const matrix = await page.evaluate(()=>{
+    const trendsList = document.querySelectorAll('.GsBXsKvH > .u4c2Cda9 div h3 a');
+    
+    
+    const trendsText = [];
+    for (const trend of trendsList) {
+      trendsText.push(trend.innerHTML);
+    }
+    
+    const dives = [];
+    for (const dive of trendsList) {
+      dives.push('https://elements.envato.com'+dive.getAttribute('href'));
+    }
+    
+    const matrix = [];
+    for (let i = 0; i < trendsText.length; i++) {
+      matrix.push([trendsText[i], dives[i]]);
+    }
+    
+    return matrix;
+    
+  })
+  console.log(matrix);
   
-  console.log(producto);
 
   //await browser.close();
 })();
