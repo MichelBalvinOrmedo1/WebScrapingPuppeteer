@@ -19,8 +19,15 @@ const puppeteer = require('puppeteer');
   const jsonData = await page.evaluate(()=>{
     const trendsList = document.querySelectorAll('.GsBXsKvH > .u4c2Cda9 div h3 a');
     const conteiner = document.querySelectorAll('.tXwhn5Zg div[data-test-selector="photogrid-photo"]');
-    const tituloVideo = document.querySelectorAll('.GsBXsKvH  > .u4c2Cda9  ul li a');
-    
+    const tituloVideo = document.querySelectorAll('.GsBXsKvH > .u4c2Cda9')
+
+    const lstElementos = [];
+    tituloVideo.forEach((element, index) => {
+      if (index !== 0) {
+        lstElementos.push(element.querySelector('ul'));
+      }
+    });
+    console.log(lstElementos)
     const jsonData = [];
     
     for (let i = 0; i < trendsList.length; i++) {
@@ -65,12 +72,14 @@ const puppeteer = require('puppeteer');
     
     return jsonData;
     
+    return jsonData;
+    
     
     
     
   })
-  console.log(jsonData);
-  console.log(jsonData[0].container[0])
+ 
+  console.log(jsonData)
   
 
   //await browser.close();
