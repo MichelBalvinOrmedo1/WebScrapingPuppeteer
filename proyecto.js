@@ -16,70 +16,75 @@ const puppeteer = require('puppeteer');
 
  
 
-  const jsonData = await page.evaluate(()=>{
+  const jsonData = await page.evaluate(() => {
     const trendsList = document.querySelectorAll('.GsBXsKvH > .u4c2Cda9 div h3 a');
-    const conteiner = document.querySelectorAll('.tXwhn5Zg div[data-test-selector="photogrid-photo"]');
-    const tituloVideo = document.querySelectorAll('.GsBXsKvH > .u4c2Cda9')
-
-    const lstElementos = [];
-    tituloVideo.forEach((element, index) => {
-      if (index !== 0) {
-        lstElementos.push(element.querySelector('ul'));
-      }
-    });
-    console.log(lstElementos)
+    const container = document.querySelectorAll('.tXwhn5Zg div[data-test-selector="photogrid-photo"]');
+  
+    const url = 'https://elements.envato.com';
+  
     const jsonData = [];
-    
+  
     for (let i = 0; i < trendsList.length; i++) {
-      const url = 'https://elements.envato.com';
       const title = trendsList[i].innerHTML;
       const dive = url + trendsList[i].getAttribute('href');
-    
+  
       let containerData;
+  
       if (i === 0) {
-        
-       /* ,descripcion:[child.getAttribute('aria-label').replace('See more details for ',''),'https://elements.envato.com' +child.getAttribute('href')] */
-       let elementAutor = '.trzLbgZD div .Ago_n9Jb a';
-       let elementDescrip = '.SZBxAOrq';
-       let elementImagen = ' .NgtXrCQY img';
-        containerData = Array.from(conteiner).map(child => [
-            {autor: [child.querySelector(elementAutor).innerHTML,
-              url + child.querySelector(elementAutor).getAttribute('href')],
-
-            descripcion:[child.querySelector(elementDescrip).getAttribute('aria-label').replace('See more details for ',''),
-                        url +child.querySelector(elementDescrip).getAttribute('href'),
-                      child.querySelector(elementImagen).getAttribute('src'),
-                    child.querySelector(elementImagen).getAttribute('srcset')]}]
-          );
-
-       
+        const autorSelector = '.trzLbgZD div .Ago_n9Jb a';
+        const descripSelector = '.SZBxAOrq';
+        const imagenSelector = '.NgtXrCQY img';
+  
+        containerData = Array.from(container).map(child => {
+          const autorElement = child.querySelector(autorSelector);
+          const autor = autorElement.innerHTML;
+          const autorUrl = url + autorElement.getAttribute('href');
+  
+          const descripElement = child.querySelector(descripSelector);
+          const descripcion = descripElement.getAttribute('aria-label').replace('See more details for ', '');
+          const descripcionUrl = url + descripElement.getAttribute('href');
+  
+          const imagenElement = child.querySelector(imagenSelector);
+          const imagenSrc = imagenElement.getAttribute('src');
+          const imagenSrcset = imagenElement.getAttribute('srcset');
+  
+          return { autor: [autor, autorUrl], descripcion: [descripcion, descripcionUrl], imagen: [imagenSrc, imagenSrcset] };
+        });
       } else {
-        containerData = Array.from(tituloVideo).map(item => [
-          item.textContent.trim(),
-          item.href,
-          item.querySelector('div[title="Author"]')?.getAttribute('title') || '',
-          item.querySelector('div[title="Author"] a')?.href || '',
-        ]);
+        const lista = document.querySelectorAll(`#app > div.Pwa91aRM > main > div > div.GsBXsKvH > div:nth-child(${i + 1}) ul > li div a[data-test-selector="item-card-user-profile-link"]`);
+        const listaArray = Array.from(lista).map(item => {
+          const autor = item.innerHTML;
+          const autorurl = item.getAttribute('href')
+          return [autor, url + autorurl];
+        });
+  
+        const descripcion = document.querySelectorAll(`#app > div.Pwa91aRM > main > div > div.GsBXsKvH > div:nth-child(${i + 1}) ul > li div a[class*="_MwuC0KD"]`);
+        const descripcionArray = Array.from(descripcion).map(item => {
+          const descripcion = item.getAttribute('title');
+          const descripcionurl = url + item.getAttribute('href')
+          return [descripcion, descripcionurl];
+        });
+  
+        const imagen = document.querySelectorAll(`#app > div.Pwa91aRM > main > div > div.GsBXsKvH > div:nth-child(${i+1}) > ul > li> div > div.F_mg954K.LpyZHUjX > div > div.o1ZyM67O`);
+        const imagenArray = Array.from(imagen).map(item => {
+          const src = item.querySelector("img").getAttribute('srcset');
+          return [src]
+        });
+  
+        containerData = { authors: listaArray, descriptions: descripcionArray, imagen: imagenArray };
       }
-    
-      const data = {
-        "title": [title, dive],
-        "container": containerData
-      };
-    
+  
+      const data = { title: [title, dive], containerData };
       jsonData.push(data);
     }
-    
+  
     return jsonData;
-    
-    return jsonData;
-    
-    
-    
-    
-  })
- 
-  console.log(jsonData)
+  });
+  console.log(JSON.stringify(jsonData, null, 2));
+  
+  console.log(jsonData[1].containerData);
+  
+
   
 
   //await browser.close();
